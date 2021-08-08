@@ -1,1 +1,4 @@
 # lib_sliders
+Sliders library for Open Hexagon
+
+This library is used to create sliders and timers for [Open Hexagon](https://github.com/SuperV1234/SSVOpenHexagon). Sliders are objects that precicely control variable values, such as by making a variable trace the pattern of a sine wave. Other patterns that exist are square, sawtooth, and triangle waves among a few other specialized ones. Sliders can be helpful for animating level aspects. Timers are objects that create function calls at precice times. The periodic timer creates a regular function call while the delay timer waits a given time before making a function call.

@@ -1,0 +1,16 @@
+{
+    "disambiguator": "library_slider",
+    "name": "slider",
+    "author": "syyrion",
+    "version": 1.18,
+    "priority": 3.03,
+    "dependencies":
+	[
+		{
+			"disambiguator": "ohvrvanilla",
+			"name": "base",
+			"author": "vittorio romeo",
+			"min_version": 1
+		}
+    ]
+}
