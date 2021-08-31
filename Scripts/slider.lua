@@ -2,6 +2,7 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
 
 -- Base slider class
 local Slider = {}
+Slider.__index = Slider
 
 -- Creates new slider class
 -- Values always start at:
@@ -12,7 +13,7 @@ local Slider = {}
 -- Value = 0 [units]
 function Slider:new(p, a, y, x, t, func)
 	local newInst = {}
-	setmetatable(newInst, {__index = self})
+	setmetatable(newInst, self)
 
 	newInst:setPeriod(p)
 	newInst:setAmplitude(a)
@@ -84,14 +85,15 @@ end
 -- Square wave slider
 -- Inherits from Slider
 SliderSquare = {}
-setmetatable(SliderSquare, {__index = Slider})
+SliderSquare.__index = SliderSquare
+setmetatable(SliderSquare, Slider)
 
 -- Default value for dutyCycle
 SliderSquare.dutyCycle = 0.5
 
 function SliderSquare:new(p, a, y, x, t, d, func)
 	local newInst = {}
-	setmetatable(newInst, {__index = self})
+	setmetatable(newInst, self)
 
 	newInst:setPeriod(p)
 	newInst:setAmplitude(a)
@@ -131,7 +133,8 @@ end
 -- Triangle wave Slider
 -- Inherits from Slider
 SliderTriangle = {}
-setmetatable(SliderTriangle, {__index = Slider})
+SliderTriangle.__index = SliderTriangle
+setmetatable(SliderTriangle, Slider)
 
 function SliderTriangle:step(mFrameTime, ...)
 	self:advance(mFrameTime, ...)
@@ -144,7 +147,8 @@ end
 -- Sawtooth wave Slider
 -- Inherits from Slider
 SliderSawtooth = {}
-setmetatable(SliderSawtooth, {__index = Slider})
+SliderSawtooth.__index = SliderSawtooth
+setmetatable(SliderSawtooth, Slider)
 
 function SliderSawtooth:step(mFrameTime, ...)
 	self:advance(mFrameTime, ...)
@@ -157,7 +161,8 @@ end
 -- Sine wave Slider
 -- Inherits from Slider
 SliderSine = {}
-setmetatable(SliderSine, {__index = Slider})
+SliderSine.__index = SliderSine
+setmetatable(SliderSine, Slider)
 
 function SliderSine:step(mFrameTime, ...)
 	self:advance(mFrameTime, ...)
@@ -169,9 +174,7 @@ end
 
 -- Sign function
 function sgn(x)
-	if x > 0 then return 1 end
-	if x == 0 then return 0 end
-	return -1
+	return x > 0 and 1 or x == 0 and 0 or -1
 end
 
 -- Square wave function with period p at value x with duty cycle d (range [-1, 1])
@@ -194,6 +197,7 @@ end
 
 -- Manually controlled slider
 SliderManual = {}
+SliderManual.__index = SliderManual
 
 -- <decKey> Decrement key
 -- <incKey> Increment key
@@ -207,7 +211,7 @@ SliderManual = {}
 -- <loop> If true, the value will loop between the two limits, instead of just being stopped
 function SliderManual:new(decKey, incKey, delta, start, min, max, loop)
 	local newInst = {}
-	setmetatable(newInst, {__index = self})
+	setmetatable(newInst, self)
 
 	newInst:setValue(start)
 	newInst:setDecKey(decKey)
@@ -260,7 +264,8 @@ end
 -- Simple Perlin noise slider
 -- Inherits from slider
 SliderPerlin = {}
-setmetatable(SliderPerlin, {__index = Slider})
+SliderPerlin.__index = SliderPerlin
+setmetatable(SliderPerlin, Slider)
 
 -- Values for the LCG
 SliderPerlin.M, SliderPerlin.A, SliderPerlin.C = 4294967296, 1664525, 1
@@ -331,8 +336,9 @@ end
 -- Uses multiple Perlin Sliders to create more complex noise
 -- Inherits from SliderPerlin
 SliderNoise = {}
+SliderNoise.__index = SliderNoise
 setmetatable(SliderNoise, {
-	__index = function(inst, key)
+	__index = function(_, key)
 		-- Exclude certain functions
 		if key == 'setPeriod' or key == 'getPeriod' or key == 'setAmplitude' or key == 'getAmplitude' or key == 'setXOffset' or key == 'getXOffset' or key == 'setFunction' or key == 'getFunction' then return end
 		return SliderPerlin[key]
@@ -349,7 +355,7 @@ setmetatable(SliderNoise, {
 -- Function must be run at least once to initialize the class
 function SliderNoise:new(p, a, y, o, t, s, d)
 	local newInst = {}
-	setmetatable(newInst, {__index = self})
+	setmetatable(newInst, self)
 
 	p = p or 1
 	a = a or 1
@@ -391,7 +397,7 @@ function SliderNoise:step(mFrameTime)
 	end
 end
 
-function Slider:printSliderInfo()
+function SliderNoise:printSliderInfo()
 	u_log('==============')
 	u_log('Y-Offset: ' .. self:getYOffset())
 	u_log('Octaves: ' .. #self.perlinSet)
@@ -405,6 +411,7 @@ end
 -- Target Slider
 -- Tracks towards a target value with an easing function
 SliderTarget = {}
+SliderTarget.__index = SliderTarget
 
 -- Creates new Target Slider
 -- <dur> Easing duration. The time it takes to reach a new target value
@@ -413,7 +420,7 @@ SliderTarget = {}
 -- <t> Timescale.
 function SliderTarget:new(dur, ease, start, t, func)
 	local newInst = {}
-	setmetatable(newInst, {__index = self})
+	setmetatable(newInst, self)
 
 	start = start or 0
 	newInst.start = start
