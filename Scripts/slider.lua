@@ -1,4 +1,4 @@
-u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
+u_execDependencyScript("library_extbase", "extbase", "syyrion", "utils.lua")
 
 -- Base slider class
 local Slider = {}
@@ -28,7 +28,7 @@ end
 
 function Slider:setPeriod(p)
 	p = p and p > 0 and p or 1
-	if self.x then self.x = lerp(0, p, inverseLerp(0, self.period, self.x)) end
+	if self.x then self.x = map(self.x, 0, self.period, 0, p) end
 	self.period = p
 end
 
@@ -167,29 +167,6 @@ setmetatable(SliderSine, Slider)
 function SliderSine:step(mFrameTime, ...)
 	self:advance(mFrameTime, ...)
 	self.value = self.amplitude * math.sin(math.tau * self.x / self.period) + self.yOffset
-end
-
-
-
-
--- Sign function
-function sgn(x)
-	return x > 0 and 1 or x == 0 and 0 or -1
-end
-
--- Square wave function with period p at value x with duty cycle d (range [-1, 1])
-function square(x, p, d)
-	return sgn(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
-end
-
--- Triangle wave function with period p at value x (range [-1, 1])
-function triangle(x, p)
-	return math.asin(math.sin(math.tau * x / p)) * 2 / math.pi 
-end
-
--- Sawtooth wave function with period p at value x (range [-1, 1])
-function sawtooth(x, p)
-	return 2 * (x / p - math.floor(0.5 + x / p))
 end
 
 
