@@ -6,6 +6,12 @@
     "priority": 3.03,
     "dependencies":
 	[
+        {
+			"disambiguator": "ohvrvanilla",
+			"name": "base",
+			"author": "vittorio romeo",
+			"min_version": 1
+		},
 		{
 			"disambiguator": "library_extbase",
 			"name": "extbase",
