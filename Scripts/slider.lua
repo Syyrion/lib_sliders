@@ -69,15 +69,6 @@ function Slider:advance(mFrameTime, ...)
 	end
 end
 
-function Slider:printSliderInfo()
-	u_log('==============')
-	u_log('Period: ' .. self:getPeriod())
-	u_log('Amplitude: ' .. self:getAmplitude())
-	u_log('Y-Offset: ' .. self:getYOffset())
-	u_log('X-Offset: ' .. self:getXOffset())
-	u_log('Timescale: ' .. self:getTimescale())
-	u_log('Value: ' .. self:getValue())
-end
 
 
 
@@ -116,16 +107,6 @@ function SliderSquare:step(mFrameTime, ...)
 	self.value = self.amplitude * square(self.x, self.period, self.dutyCycle) + self.yOffset
 end
 
-function SliderSquare:printSliderInfo()
-	u_log('==============')
-	u_log('Period: ' .. self:getPeriod())
-	u_log('Amplitude: ' .. self:getAmplitude())
-	u_log('Y-Offset: ' .. self:getYOffset())
-	u_log('X-Offset: ' .. self:getXOffset())
-	u_log('Timescale: ' .. self:getTimescale())
-	u_log('Duty Cycle: ' .. self:getDutyCycle())
-	u_log('Value: ' .. self:getValue())
-end
 
 
 
@@ -374,13 +355,6 @@ function SliderNoise:step(mFrameTime)
 	end
 end
 
-function SliderNoise:printSliderInfo()
-	u_log('==============')
-	u_log('Y-Offset: ' .. self:getYOffset())
-	u_log('Octaves: ' .. #self.perlinSet)
-	u_log('Timescale' .. self:getTimescale())
-	u_log('Value: ' .. self:getValue())
-end
 
 
 
