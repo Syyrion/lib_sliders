@@ -316,10 +316,15 @@ function __WAVE:getPhase() return self.phase * 360 end
 function __WAVE:setXOffset(x) self.phase = type(x) == 'number' and x / self.period or nil end
 function __WAVE:getXOffset() return self.phase * self.period end
 
-function __WAVE:advance(mFrameTime)
+function __WAVE:advance(mFrameTime, ...)
 	self.progress = self.progress + clamp(mFrameTime / FPS / self.period * self.timescale, -1, 1)
-	if self.progress > 1 then self.progress = self.progress - 1
-	elseif  self.progress < 0 then self.progress = self.progress + 1 end
+	if self.progress > 1 then
+		self.progress = self.progress - 1
+		return self.fn(...)
+	elseif  self.progress < 0 then
+		self.progress = self.progress + 1
+		return self.fn(...)
+	end
 end
 
 SliderSquare = setmetatable({
@@ -331,30 +336,34 @@ function SliderSquare:setDutyCycle(d) self.dutyCycle = type(d) == 'number' and c
 function SliderSquare:getDutyCycle() return self.dutyCycle end
 
 function SliderSquare:step(mFrameTime, ...)
-	self:advance(mFrameTime, ...)
+	local out = {self:advance(mFrameTime, ...)}
 	self.value = self.amplitude * squareWave(self.progress - self.phase, 1, self.dutyCycle) + self.yOffset
+	return unpack(out)
 end
 
 SliderTriangle = setmetatable({}, __WAVE)
 SliderTriangle.__index = SliderTriangle
 
 function SliderTriangle:step(mFrameTime, ...)
-	self:advance(mFrameTime, ...)
+	local out = {self:advance(mFrameTime, ...)}
 	self.value = self.amplitude * triangleWave(self.progress - self.phase, 1) + self.yOffset
+	return unpack(out)
 end
 
 SliderSawtooth = setmetatable({}, __WAVE)
 SliderSawtooth.__index = SliderSawtooth
 
 function SliderSawtooth:step(mFrameTime, ...)
-	self:advance(mFrameTime, ...)
+	local out = {self:advance(mFrameTime, ...)}
 	self.value = self.amplitude * sawtoothWave(self.progress - self.phase, 1) + self.yOffset
+	return unpack(out)
 end
 
 SliderSine = setmetatable({}, __WAVE)
 SliderSine.__index = SliderSine
 
 function SliderSine:step(mFrameTime, ...)
-	self:advance(mFrameTime, ...)
+	local out = {self:advance(mFrameTime, ...)}
 	self.value = self.amplitude * math.sin(math.tau * (self.progress - self.phase)) + self.yOffset
+	return unpack(out)
 end
