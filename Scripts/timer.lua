@@ -1,4 +1,4 @@
-print("!! WARNING !! timer.lua is deprecated and will be removed on Jan. 1 2023.\nNo further updates will be given to this script.\nPlease migrate code to use master.lua.")
+print("!! WARNING !! timer.lua is deprecated.\nNo further feature updates will be given to this script.\nPlease migrate code to use master.lua.")
 
 -- Periodic Timer
 -- Runs a function at set intervals
