@@ -1,3 +1,5 @@
+print("!! WARNING !! timer.lua is deprecated.\nNo further feature updates will be given to this script.\nPlease migrate code to use master.lua.")
+
 -- Periodic Timer
 -- Runs a function at set intervals
 TimerPeriodic = {}
