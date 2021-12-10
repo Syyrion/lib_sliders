@@ -1,3 +1,6 @@
+if __SLIDERS_MASTER_IMPORTED then return end
+__SLIDERS_MASTER_IMPORTED = true
+
 u_execDependencyScript("library_extbase", "extbase", "syyrion", "utils.lua")
 
 local __FUNCTION = {
