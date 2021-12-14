@@ -1,6 +1,3 @@
-if __SLIDERS_MASTER_IMPORTED then return end
-__SLIDERS_MASTER_IMPORTED = true
-
 u_execDependencyScript("library_extbase", "extbase", "syyrion", "utils.lua")
 
 local __FUNCTION = {
@@ -335,21 +332,26 @@ SliderSquare = setmetatable({
 }, __WAVE)
 SliderSquare.__index = SliderSquare
 
-function SliderSquare:setDutyCycle(d) self.dutyCycle = type(d) == 'number' and clamp(d, 0, 1) or nil end
+function SliderSquare:setDutyCycle(d) self.dutyCycle = type(d) == 'number' and d or nil end
 function SliderSquare:getDutyCycle() return self.dutyCycle end
 
 function SliderSquare:step(mFrameTime, ...)
 	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * squareWave(self.progress - self.phase, 1, self.dutyCycle) + self.yOffset
+	self.value = self.amplitude * squareWave(self.progress - self.phase, self.dutyCycle) + self.yOffset
 	return unpack(out)
 end
 
-SliderTriangle = setmetatable({}, __WAVE)
+SliderTriangle = setmetatable({
+	asymmetry = 0.5
+}, __WAVE)
 SliderTriangle.__index = SliderTriangle
+
+function SliderTriangle:setAsymmetry(d) self.asymmetry = type(d) == 'number' and d or nil end
+function SliderTriangle:getAsymmetry() return self.asymmetry end
 
 function SliderTriangle:step(mFrameTime, ...)
 	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * triangleWave(self.progress - self.phase, 1) + self.yOffset
+	self.value = self.amplitude * triangleWave(self.progress - self.phase, self.asymmetry) + self.yOffset
 	return unpack(out)
 end
 
@@ -358,7 +360,7 @@ SliderSawtooth.__index = SliderSawtooth
 
 function SliderSawtooth:step(mFrameTime, ...)
 	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * sawtoothWave(self.progress - self.phase, 1) + self.yOffset
+	self.value = self.amplitude * sawtoothWave(self.progress - self.phase) + self.yOffset
 	return unpack(out)
 end
 
