@@ -2,7 +2,7 @@
     "disambiguator": "library_slider",
     "name": "slider",
     "author": "syyrion",
-    "version": 2000,
+    "version": 2100,
     "priority": -102,
     "dependencies":
 	[
