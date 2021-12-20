@@ -2,7 +2,7 @@
     "disambiguator": "library_slider",
     "name": "slider",
     "author": "syyrion",
-    "version": 2100,
+    "version": 2001,
     "priority": -102,
     "dependencies":
 	[
@@ -16,7 +16,7 @@
 			"disambiguator": "library_extbase",
 			"name": "extbase",
 			"author": "syyrion",
-			"min_version": 1000
+			"min_version": 1001
 		}
     ]
 }
