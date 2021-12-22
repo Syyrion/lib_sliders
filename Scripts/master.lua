@@ -372,6 +372,7 @@ SliderSine.__index = SliderSine
 
 
 local Event = setmetatable({
+	period = 0,
 	setPeriod = TimerDelay.setPeriod
 }, __EASE)
 Event.__index = Event
@@ -436,6 +437,12 @@ end
 -- Copies the last event
 function Keyframe:copy(...)
 	self:spawn(true, ...)
+end
+
+-- Copies the last event with a duration of zero
+-- Ensures that the last event is run properly
+function Keyframe:terminate(...)
+	self:copy(0, ...)
 end
 
 -- Creates events in bulk
