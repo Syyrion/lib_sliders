@@ -451,7 +451,11 @@ function Keyframe:sequence(...)
 	local len = #t
 	for i = 1, len do
 		if type(t[i]) == 'table' then
-			self:spawn(t[i].copy, unpack(t[i]))
+			self[({
+				['e'] = 'event',
+				['c'] = 'copy',
+				['t'] = 'terminate'
+			})[t[i].mode or 'e'] or error(('Argument #%d has an invalid mode.'):format(i), 2)](self, unpack(t[i]))
 		else
 			error(('Argument #%d is not a table.'):format(i), 2)
 		end
