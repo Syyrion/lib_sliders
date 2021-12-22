@@ -8,22 +8,6 @@ __FUNCTION.__index = __FUNCTION
 function __FUNCTION:setFunction(fn) self.fn = type(fn) == 'function' and fn or nil end
 function __FUNCTION:getFunction() return self.fn end
 
-local __TIME = setmetatable({
-	period = 1,
-	timescale = 1
-}, __FUNCTION)
-__TIME.__index = __TIME
-
-function __TIME:setPeriod(p) self.period = type(p) == 'number' and p > 0 and p or nil end
-function __TIME:getPeriod() return self.period end
-
-function __TIME:setTimescale(t) self.timescale = type(t) == 'number' and math.max(t, 0) or nil end
-function __TIME:getTimescale() return self.timescale end
-
-function __TIME:advance(mFrameTime)
-	self.progress = self.progress + clamp(mFrameTime / FPS / self.period * self.timescale, 0, 1)
-end
-
 
 
 -- RateTimer
@@ -51,6 +35,24 @@ function TimerRate:step(mFrameTime, ...)
 		self.progress = self.progress - self.threshold
 		self.fn(self.threshold, ...)
 	end
+end
+
+
+
+local __TIME = setmetatable({
+	period = 1,
+	timescale = 1
+}, __FUNCTION)
+__TIME.__index = __TIME
+
+function __TIME:setPeriod(p) self.period = type(p) == 'number' and p > 0 and p or nil end
+function __TIME:getPeriod() return self.period end
+
+function __TIME:setTimescale(t) self.timescale = type(t) == 'number' and math.max(t, 0) or nil end
+function __TIME:getTimescale() return self.timescale end
+
+function __TIME:advance(mFrameTime)
+	self.progress = self.progress + clamp(mFrameTime / FPS / self.period * self.timescale, 0, 1)
 end
 
 
@@ -94,13 +96,12 @@ function TimerDelay:stop() self.progress, self.running = 0, false end
 -- Step function will return anything that the assigned function returns
 function TimerDelay:step(mFrameTime, ...)
 	if self.running then
-		local FN = function (...)
+		if self.period == 0 then self.progress = 0 end
+		if self.progress < 1 then self:advance(mFrameTime) end
+		if self.progress >= 1 then
 			self:stop()
-			return self.fn(...)
+			self.fn(...)
 		end
-		if self.period == 0 then return FN(...) end
-		self:advance(mFrameTime)
-		if self.progress >= 1 then return FN(...) end
 	end
 end
 
@@ -135,7 +136,7 @@ function TimerPeriodic:step(mFrameTime, ...)
 	self:advance(mFrameTime)
 	if self.progress >= 1 then
 		self.progress = self.progress - 1
-		return self.fn(...)
+		self.fn(...)
 	end
 end
 
@@ -151,12 +152,17 @@ __VALUE.__index = __VALUE
 function __VALUE:setValue(v) self.value = type(v) == 'number' and v or nil end
 function __VALUE:getValue() return self.value end
 
-
-
-
-SliderTarget = setmetatable({
+local __EASE = setmetatable({
 	ease = function (x) return x end
 }, __VALUE)
+__EASE.__index = __EASE
+
+function __EASE:setEaseFunction(ease) self.ease = type(ease) == 'function' and ease or nil end
+function __EASE:getEaseFunction() return self.ease end
+
+
+
+SliderTarget = setmetatable({}, __EASE)
 SliderTarget.__index = SliderTarget
 
 function SliderTarget:new(p, ease, start, t, fn)
@@ -172,9 +178,6 @@ function SliderTarget:new(p, ease, start, t, fn)
 	newInst:setFunction(fn)
 	return newInst
 end
-
-function SliderTarget:setEaseFunction(ease) self.ease = type(ease) == 'function' and ease or nil end
-function SliderTarget:getEaseFunction() return self.ease end
 
 -- Sets the value of the slider and freezes the slider
 function SliderTarget:setValue(v)
@@ -199,15 +202,13 @@ function SliderTarget:stop() self.progress, self.running = 0, false end
 -- Advances the slider until target is reached
 function SliderTarget:step(mFrameTime, ...)
 	if self.running then
-		local FN = function () self.value = lerp(self.start, self.target, self.ease(self.progress)) end
 		self:advance(mFrameTime)
 		if self.progress >= 1 then
 			self.progress = 1
-			FN()
 			self:stop()
-			return self.fn(...)
+			self.fn(...)
 		end
-		FN()
+		self.value = lerp(self.start, self.target, self.ease(self.progress))
 	end
 end
 
@@ -260,15 +261,13 @@ end
 
 -- Updates slider to the next value
 function SliderPerlin:step(mFrameTime, ...)
-	local FN = function () self.value = lerp(self.yBegin, self.yEnd, easeInOutSine(self.progress / self.period)) end
 	self:advance(mFrameTime, ...)
-	if self.progress >= self.period then
+	if self.progress >= 1 then
+		self.progress = self.progress - 1
 		self:next()
-		self.progress = self.progress - self.period
-		FN()
-		return self.fn(...)
+		self.fn(...)
 	end
-	FN()
+	self.value = lerp(self.yBegin, self.yEnd, easeInOutSine(self.progress))
 end
 
 -- Linear Congruential Generator. Separate PRNG that can be seeded. Unique to each individual slider
@@ -320,15 +319,21 @@ function __WAVE:advance(mFrameTime, ...)
 	self.progress = self.progress + clamp(mFrameTime / FPS / self.period * self.timescale, -1, 1)
 	if self.progress > 1 then
 		self.progress = self.progress - 1
-		return self.fn(...)
+		self.fn(...)
 	elseif  self.progress < 0 then
 		self.progress = self.progress + 1
-		return self.fn(...)
+		self.fn(...)
 	end
 end
 
+function SliderSawtooth:step(mFrameTime, ...)
+	self:advance(mFrameTime, ...)
+	self.value = self.amplitude * self.wave(self.progress - self.phase) + self.yOffset
+end
+
 SliderSquare = setmetatable({
-	dutyCycle = 0.5
+	dutyCycle = 0.5,
+	wave = squareWave
 }, __WAVE)
 SliderSquare.__index = SliderSquare
 
@@ -336,13 +341,13 @@ function SliderSquare:setDutyCycle(d) self.dutyCycle = type(d) == 'number' and d
 function SliderSquare:getDutyCycle() return self.dutyCycle end
 
 function SliderSquare:step(mFrameTime, ...)
-	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * squareWave(self.progress - self.phase, self.dutyCycle) + self.yOffset
-	return unpack(out)
+	self:advance(mFrameTime, ...)
+	self.value = self.amplitude * self.wave(self.progress - self.phase, self.dutyCycle) + self.yOffset
 end
 
 SliderTriangle = setmetatable({
-	asymmetry = 0.5
+	asymmetry = 0.5,
+	wave = triangleWave
 }, __WAVE)
 SliderTriangle.__index = SliderTriangle
 
@@ -350,25 +355,117 @@ function SliderTriangle:setAsymmetry(d) self.asymmetry = type(d) == 'number' and
 function SliderTriangle:getAsymmetry() return self.asymmetry end
 
 function SliderTriangle:step(mFrameTime, ...)
-	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * triangleWave(self.progress - self.phase, self.asymmetry) + self.yOffset
-	return unpack(out)
+	self:advance(mFrameTime, ...)
+	self.value = self.amplitude * self.wave(self.progress - self.phase, self.asymmetry) + self.yOffset
 end
 
-SliderSawtooth = setmetatable({}, __WAVE)
+SliderSawtooth = setmetatable({
+	wave = sawtoothWave
+}, __WAVE)
 SliderSawtooth.__index = SliderSawtooth
 
-function SliderSawtooth:step(mFrameTime, ...)
-	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * sawtoothWave(self.progress - self.phase) + self.yOffset
-	return unpack(out)
-end
-
-SliderSine = setmetatable({}, __WAVE)
+SliderSine = setmetatable({
+	wave = function (x) return math.sin(math.tau * x) end
+}, __WAVE)
 SliderSine.__index = SliderSine
 
-function SliderSine:step(mFrameTime, ...)
-	local out = {self:advance(mFrameTime, ...)}
-	self.value = self.amplitude * math.sin(math.tau * (self.progress - self.phase)) + self.yOffset
-	return unpack(out)
+
+local Event = setmetatable({
+	setPeriod = TimerDelay.setPeriod
+}, __EASE)
+Event.__index = Event
+
+function Event:setTimescale(t) self.timescale = type(t) == 'number' and t > 0 and t or nil end
+
+function Event:new(period, value, fn, easing, timescale)
+	local newInst = setmetatable({
+		progress = 0
+	}, self)
+	newInst.__index = newInst
+	newInst:setPeriod(period)
+	newInst:setValue(value)
+	newInst:setFunction(fn)
+	newInst:setEaseFunction(easing)
+	newInst:setTimescale(timescale)
+	return newInst
+end
+
+Keyframe = {
+	value = 0,
+	setValue = __VALUE.setValue,
+	getValue = __VALUE.getValue,
+	__mode = 'k'
+}
+Keyframe.__index = Keyframe
+
+function Keyframe:setPeriod(period) self.principle.setPeriod(period) end
+function Keyframe:getPeriod() return self.principle.period end
+function Keyframe:setFunction(fn) self.principle.setFunction(fn) end
+function Keyframe:getFunction() return self.principle.fn end
+function Keyframe:setEaseFunction(easing) self.principle.setEaseFunction(easing) end
+function Keyframe:getEaseFunction() return self.principle.ease end
+function Keyframe:setTimescale(timescale) self.principle.setTimescale(timescale) end
+function Keyframe:getTimescale() return self.principle.timescale end
+
+function Keyframe:new(...)
+	local newPrinciple = Event:new(...)
+	local newEvent = newPrinciple:new()
+	local newInst = setmetatable({
+		principle = newPrinciple
+	}, self)
+	newInst.current = newEvent
+	newInst.terminal = newEvent
+	newInst[newEvent] = false
+	return newInst
+end
+
+-- Creates or copies a new event
+function Keyframe:spawn(copy, ...)
+	local newEvent = self[copy and 'terminal' or 'principle']:new(...)
+	self[self.terminal] = newEvent
+	self[newEvent] = false
+	self.terminal = newEvent
+end
+
+-- Creates a new event
+function Keyframe:event(...)
+	self:spawn(false, ...)
+end
+
+-- Copies the last event
+function Keyframe:copy(...)
+	self:spawn(true, ...)
+end
+
+-- Creates events in bulk
+function Keyframe:sequence(...)
+	local t = {...}
+	local len = #t
+	for i = 1, len do
+		if type(t[i]) == 'table' then
+			self:spawn(t[i].copy, unpack(t[i]))
+		else
+			error(('Argument #%d is not a table.'):format(i), 2)
+		end
+	end
+end
+
+function Keyframe:step(mFrameTime, ...)
+	if self[self.current] then
+		if self.current.period == 0 then self.current.progress = 1 end
+		if self.current.progress < 1 then self.current:advance(mFrameTime) end
+		if self.current.progress >= 1 then
+			local overflow = (self.current.progress - 1) / self.current.timescale
+			repeat
+				self.current.fn(...)
+				self.current = self[self.current]
+				if not self[self.current] then
+					self.value = self.current.value
+					return
+				end
+			until self.current.period > 0
+			self.current.progress = overflow * self.current.timescale
+		end
+		self.value = lerp(self.current.value, self[self.current].value, self.current.ease(self.current.progress))
+	end
 end
