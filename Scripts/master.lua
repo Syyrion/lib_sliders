@@ -192,12 +192,13 @@ function SliderTarget:newTarget(target)
 	if target ~= self.target then
 		self.target = target
 		self.start = self.value
+		self.progress = 0
 		self.running = target ~= self.value
 	end
 end
 
 -- Stops the slider. The value remains at its current position.
-function SliderTarget:stop() self.progress, self.running = 0, false end
+function SliderTarget:stop() self.running = false end
 
 -- Advances the slider until target is reached
 function SliderTarget:step(mFrameTime, ...)
@@ -205,7 +206,7 @@ function SliderTarget:step(mFrameTime, ...)
 		self:advance(mFrameTime)
 		if self.progress >= 1 then
 			self.progress = 1
-			self:stop()
+			self.running = false
 			self.fn(...)
 		end
 		self.value = lerp(self.start, self.target, self.ease(self.progress))
@@ -326,7 +327,7 @@ function __WAVE:advance(mFrameTime, ...)
 	end
 end
 
-function SliderSawtooth:step(mFrameTime, ...)
+function __WAVE:step(mFrameTime, ...)
 	self:advance(mFrameTime, ...)
 	self.value = self.amplitude * self.wave(self.progress - self.phase) + self.yOffset
 end
