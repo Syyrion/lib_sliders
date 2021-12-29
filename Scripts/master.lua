@@ -96,11 +96,15 @@ function TimerDelay:stop() self.progress, self.running = 0, false end
 -- Step function will return anything that the assigned function returns
 function TimerDelay:step(mFrameTime, ...)
 	if self.running then
-		if self.period == 0 then self.progress = 0 end
-		if self.progress < 1 then self:advance(mFrameTime) end
-		if self.progress >= 1 then
+		if self.period == 0 then
 			self:stop()
 			self.fn(...)
+		elseif self.progress < 1 then
+			self:advance(mFrameTime)
+			if self.progress >= 1 then
+				self:stop()
+				self.fn(...)
+			end
 		end
 	end
 end
@@ -417,6 +421,7 @@ function Keyframe:new(...)
 	}, self)
 	newInst.current = newEvent
 	newInst.terminal = newEvent
+	newInst.value = newInst.principle.value
 	newInst[newEvent] = false
 	return newInst
 end
@@ -462,22 +467,40 @@ function Keyframe:sequence(...)
 	end
 end
 
+function Keyframe:absolute(...)
+	local t = {{0}, ...}
+	local len = #t
+	table.sort(t, function (a, b)
+		return a[1] < b[1]
+	end)
+	local time = t[1][1]
+	for i = 2, len do
+		local rel = t[i][1] - time
+		time = t[i][1]
+		t[i][1] = rel
+	end
+	self:sequence(unpack(t, 2))
+end
+
 function Keyframe:step(mFrameTime, ...)
-	if self[self.current] then
-		if self.current.period == 0 then self.current.progress = 1 end
-		if self.current.progress < 1 then self.current:advance(mFrameTime) end
-		if self.current.progress >= 1 then
-			local overflow = (self.current.progress - 1) / self.current.timescale
+	local currentEvent = self.current
+	local nextEvent = self[currentEvent]
+	if nextEvent then
+		if nextEvent == 0 then nextEvent = 1
+		elseif nextEvent.progress < 1 then nextEvent:advance(mFrameTime) end
+
+		if nextEvent.progress >= 1 then
+			local overflow = (nextEvent.progress - 1) / nextEvent.timescale
 			repeat
-				self.current.fn(...)
-				self.current = self[self.current]
-				if not self[self.current] then
-					self.value = self.current.value
+				nextEvent.fn(...)
+				self.current, currentEvent, nextEvent = nextEvent, nextEvent, self[nextEvent]
+				if not nextEvent then
+					self.value = currentEvent.value
 					return
 				end
-			until self.current.period > 0
-			self.current.progress = overflow * self.current.timescale
+			until nextEvent.period > 0
+			nextEvent.progress = overflow * nextEvent.timescale
 		end
-		self.value = lerp(self.current.value, self[self.current].value, self.current.ease(self.current.progress))
+		self.value = lerp(currentEvent.value, nextEvent.value, nextEvent.ease(nextEvent.progress))
 	end
 end
