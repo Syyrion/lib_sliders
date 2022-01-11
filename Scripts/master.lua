@@ -377,15 +377,16 @@ SliderSine.__index = SliderSine
 
 local Event = setmetatable({
 	period = 0,
-	setPeriod = TimerDelay.setPeriod
+	setPeriod = TimerDelay.setPeriod,
 }, __EASE)
 Event.__index = Event
 
 function Event:setTimescale(t) self.timescale = type(t) == 'number' and t > 0 and t or nil end
 
-function Event:new(period, value, fn, easing, timescale)
+function Event:new(period, value, fn, easing, timescale, ...)
 	local newInst = setmetatable({
-		progress = 0
+		progress = 0,
+		args = {...}
 	}, self)
 	newInst.__index = newInst
 	newInst:setPeriod(period)
@@ -482,7 +483,7 @@ function Keyframe:absolute(...)
 	self:sequence(unpack(t, 2))
 end
 
-function Keyframe:step(mFrameTime, ...)
+function Keyframe:step(mFrameTime)
 	local currentEvent = self.current
 	local nextEvent = self[currentEvent]
 	if nextEvent then
@@ -492,7 +493,7 @@ function Keyframe:step(mFrameTime, ...)
 		if nextEvent.progress >= 1 then
 			local overflow = (nextEvent.progress - 1) / nextEvent.timescale
 			repeat
-				nextEvent.fn(...)
+				nextEvent.fn(unpack(nextEvent.args))
 				self.current, currentEvent, nextEvent = nextEvent, nextEvent, self[nextEvent]
 				if not nextEvent then
 					self.value = currentEvent.value
