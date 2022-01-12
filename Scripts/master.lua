@@ -451,6 +451,10 @@ function Keyframe:terminate(...)
 	self:copy(0, ...)
 end
 
+function Keyframe:isRunning()
+	return self.current ~= self.terminal
+end
+
 -- Creates events in bulk
 function Keyframe:sequence(...)
 	local t = {...}
