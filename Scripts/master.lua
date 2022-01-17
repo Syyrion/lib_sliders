@@ -289,7 +289,7 @@ end
 
 -- Updates slider to the next value
 function SliderPerlin:step(mFrameTime, ...)
-	self:advance(mFrameTime, ...)
+	self:advance(mFrameTime)
 	if self.progress >= 1 then
 		self.progress = self.progress - 1
 		self:next()
@@ -531,4 +531,8 @@ function Keyframe:step(mFrameTime)
 		end
 		self.value = lerp(currentEvent.value, nextEvent.value, nextEvent.ease(nextEvent.progress))
 	end
+end
+
+function Keyframe:clear()
+	self.current = self.terminal
 end
