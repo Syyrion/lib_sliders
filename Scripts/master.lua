@@ -428,13 +428,13 @@ Keyframe = {
 }
 Keyframe.__index = Keyframe
 
-function Keyframe:setPeriod(period) self.principle.setPeriod(period) end
+function Keyframe:setPeriod(period) self.principle:setPeriod(period) end
 function Keyframe:getPeriod() return self.principle.period end
-function Keyframe:setFunction(fn) self.principle.setFunction(fn) end
+function Keyframe:setFunction(fn) self.principle:setFunction(fn) end
 function Keyframe:getFunction() return self.principle.fn end
-function Keyframe:setEaseFunction(easing) self.principle.setEaseFunction(easing) end
+function Keyframe:setEaseFunction(easing) self.principle:setEaseFunction(easing) end
 function Keyframe:getEaseFunction() return self.principle.ease end
-function Keyframe:setTimescale(timescale) self.principle.setTimescale(timescale) end
+function Keyframe:setTimescale(timescale) self.principle:setTimescale(timescale) end
 function Keyframe:getTimescale() return self.principle.timescale end
 
 function Keyframe:new(...)
