@@ -450,28 +450,12 @@ function Keyframe:new(...)
 	return newInst
 end
 
--- Creates or copies a new event
-function Keyframe:spawn(copy, ...)
-	local newEvent = self[copy and 'terminal' or 'principle']:new(...)
+-- Creates a new event
+function Keyframe:event(...)
+	local newEvent = self.principle:new(...)
 	self[self.terminal] = newEvent
 	self[newEvent] = false
 	self.terminal = newEvent
-end
-
--- Creates a new event
-function Keyframe:event(...)
-	self:spawn(false, ...)
-end
-
--- Copies the last event
-function Keyframe:copy(...)
-	self:spawn(true, ...)
-end
-
--- Copies the last event with a duration of zero
--- Ensures that the last event is run properly
-function Keyframe:terminate(...)
-	self:copy(0, ...)
 end
 
 function Keyframe:isRunning()
@@ -484,11 +468,7 @@ function Keyframe:sequence(...)
 	local len = #t
 	for i = 1, len do
 		if type(t[i]) == 'table' then
-			self[({
-				['e'] = 'event',
-				['c'] = 'copy',
-				['t'] = 'terminate'
-			})[t[i].mode or 'e'] or errorf(2, 'Sequence', 'Argument #%d has an invalid mode.', i)](self, unpack(t[i]))
+			self:event(unpack(t[i]))
 		else
 			errorf(2, 'Sequence', 'Argument #%d is not a table.', i)
 		end
