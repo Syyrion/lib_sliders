@@ -458,6 +458,14 @@ function Keyframe:event(...)
 	self.terminal = newEvent
 end
 
+function Keyframe:eval(period, fn, ...)
+	self:event(period, nil, fn, nil, nil, ...)
+end
+
+function Keyframe:node(period, value, easing)
+	self:event(period, value, nil, easing)
+end
+
 function Keyframe:isRunning()
 	return self.current ~= self.terminal
 end
