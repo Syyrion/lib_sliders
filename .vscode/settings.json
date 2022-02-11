@@ -1,8 +1,0 @@
-{
-    "Lua.diagnostics.disable": [
-        "undefined-field",
-        "lowercase-global",
-        "undefined-global"
-    ],
-    "Lua.color.mode": "SemanticEnhanced"
-}
