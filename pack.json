@@ -16,7 +16,7 @@
 			"disambiguator": "library_extbase",
 			"name": "extbase",
 			"author": "syyrion",
-			"min_version": 1101
+			"min_version": 1103
 		}
     ]
 }
