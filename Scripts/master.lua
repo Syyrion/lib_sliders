@@ -361,7 +361,7 @@ end
 
 SliderSquare = setmetatable({
 	dutyCycle = 0.5,
-	wave = squareWave
+	wave = Wave.square
 }, __WAVE)
 SliderSquare.__index = SliderSquare
 
@@ -375,7 +375,7 @@ end
 
 SliderTriangle = setmetatable({
 	asymmetry = 0.5,
-	wave = triangleWave
+	wave = Wave.triangle
 }, __WAVE)
 SliderTriangle.__index = SliderTriangle
 
@@ -388,7 +388,7 @@ function SliderTriangle:step(mFrameTime, ...)
 end
 
 SliderSawtooth = setmetatable({
-	wave = sawtoothWave
+	wave = Wave.sawtooth
 }, __WAVE)
 SliderSawtooth.__index = SliderSawtooth
 
