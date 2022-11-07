@@ -5,18 +5,18 @@
     "version": 2006,
     "priority": -102,
     "dependencies":
-	[
+    [
         {
-			"disambiguator": "ohvrvanilla",
-			"name": "base",
-			"author": "vittorio romeo",
-			"min_version": 1
-		},
-		{
-			"disambiguator": "library_extbase",
-			"name": "extbase",
-			"author": "syyrion",
-			"min_version": 1103
-		}
+            "disambiguator": "ohvrvanilla",
+            "name": "base",
+            "author": "vittorio romeo",
+            "min_version": 1
+        },
+        {
+            "disambiguator": "library_extbase",
+            "name": "extbase",
+            "author": "syyrion",
+            "min_version": 1103
+        }
     ]
 }
